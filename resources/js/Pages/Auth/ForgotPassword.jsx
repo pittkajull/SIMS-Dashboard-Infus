@@ -1,0 +1,69 @@
+import GuestLayout from '@/Layouts/GuestLayout';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { Mail, Send, ArrowLeft } from 'lucide-react';
+
+export default function ForgotPassword({ status }) {
+    const { data, setData, post, processing, errors } = useForm({
+        email: '',
+    });
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(route('password.email'));
+    };
+
+    return (
+        <GuestLayout>
+            <Head title="Lupa Password - RSUD BANTEN" />
+
+            <div className="mb-6 text-center">
+                <h3 className="text-2xl font-black tracking-tight text-slate-800">Lupa Password?</h3>
+                <p className="text-slate-500 text-sm mt-2 font-medium leading-relaxed">
+                    Masukkan email medis Anda. Kami akan mengirimkan tautan untuk mengatur ulang password.
+                </p>
+            </div>
+
+            {status && (
+                <div className="mb-6 text-xs text-emerald-600 bg-emerald-50 border border-emerald-100 p-4 rounded-2xl text-center font-bold">
+                    {status}
+                </div>
+            )}
+
+            <form onSubmit={submit} className="space-y-5">
+                <div className="group">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase block mb-2 ml-1 tracking-widest">Email Medis</label>
+                    <div className="relative">
+                        <input
+                            type="email"
+                            value={data.email}
+                            onChange={(e) => setData('email', e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 pl-12 text-sm font-bold text-slate-800 focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none transition-all placeholder:font-medium placeholder:text-slate-400 shadow-sm"
+                            placeholder="nama@rsud.banten.go.id"
+                            autoFocus
+                            required
+                        />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={18} strokeWidth={2.5} />
+                    </div>
+                    {errors.email && <div className="text-rose-500 text-[10px] uppercase tracking-wider mt-2 font-bold ml-1">{errors.email}</div>}
+                </div>
+
+                <button
+                    disabled={processing}
+                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white py-4 rounded-[20px] font-black text-sm uppercase tracking-widest shadow-[0_8px_20px_rgba(16,185,129,0.2)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.3)] transition-all active:scale-[0.98] mt-6 flex items-center justify-center gap-2 disabled:opacity-70 disabled:pointer-events-none"
+                >
+                    {processing ? 'Mengirim...' : (
+                        <>
+                            <Send size={18} strokeWidth={2.5} /> Kirim Link Reset
+                        </>
+                    )}
+                </button>
+
+                <div className="text-center pt-6 mt-6 border-t border-slate-200">
+                    <Link href={route('login')} className="text-[11px] font-bold text-slate-500 hover:text-emerald-600 transition-colors inline-flex items-center gap-1.5">
+                        <ArrowLeft size={14} /> Kembali ke halaman Login
+                    </Link>
+                </div>
+            </form>
+        </GuestLayout>
+    );
+}
