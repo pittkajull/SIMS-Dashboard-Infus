@@ -8,7 +8,8 @@ export default function Dashboard({ auth, infusions = [] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
     const [activeNotifications, setActiveNotifications] = useState([]);
-    const previousInfusionsRef = useRef([]);
+    const previousCriticalIdsRef = useRef([]);
+    const alarmIntervalsRef = useRef({});
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -23,22 +24,58 @@ export default function Dashboard({ auth, infusions = [] }) {
     }, []);
 
     useEffect(() => {
-        const previousIds = previousInfusionsRef.current.map(i => i.id);
-        const currentCritical = infusions.filter(i => i.status === 'warning');
-        const newCritical = currentCritical.filter(i => !previousIds.includes(i.id));
+        // Cari pasien yang BARU masuk status kritis (sebelumnya bukan warning, sekarang warning)
+        const currentCriticalIds = infusions.filter(i => i.status === 'warning').map(i => i.id);
+        const newCriticalIds = currentCriticalIds.filter(id => !previousCriticalIdsRef.current.includes(id));
 
-        if (newCritical.length > 0) {
-            const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-            audio.play().catch(e => console.log('Audio error:', e));
-            const notifs = newCritical.map(item => ({
+        // Filter: hanya pasien yang BELUM punya notif
+        const trulyNew = newCriticalIds.filter(id =>
+            !activeNotifications.some(n => n.id === id)
+        );
+
+        if (trulyNew.length > 0) {
+            const newCriticalItems = infusions.filter(i => trulyNew.includes(i.id));
+            const notifs = newCriticalItems.map(item => ({
                 id: item.id,
                 message: `Peringatan: Cairan Infus Bed ${item.room_number} (${item.patient_name}) Hampir Habis!`,
                 timestamp: new Date(),
             }));
             setActiveNotifications(prev => [...prev, ...notifs]);
+
+            // Alarm loop — beep terus sampe suster matikan
+            newCriticalItems.forEach(item => {
+                const playBeep = () => {
+                    try {
+                        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                        [0, 0.25, 0.5].forEach(delay => {
+                            const osc = ctx.createOscillator();
+                            const gain = ctx.createGain();
+                            osc.connect(gain);
+                            gain.connect(ctx.destination);
+                            osc.type = 'sine';
+                            osc.frequency.value = 880;
+                            gain.gain.setValueAtTime(0.4, ctx.currentTime + delay);
+                            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + delay + 0.2);
+                            osc.start(ctx.currentTime + delay);
+                            osc.stop(ctx.currentTime + delay + 0.2);
+                        });
+                    } catch (e) {}
+                };
+                playBeep();
+                const intervalId = setInterval(playBeep, 2000);
+                alarmIntervalsRef.current[item.id] = intervalId;
+            });
         }
-        previousInfusionsRef.current = infusions;
+        previousCriticalIdsRef.current = currentCriticalIds;
     }, [infusions]);
+
+    const stopAlarm = (id) => {
+        if (alarmIntervalsRef.current[id]) {
+            clearInterval(alarmIntervalsRef.current[id]);
+            delete alarmIntervalsRef.current[id];
+        }
+        setActiveNotifications(prev => prev.filter(n => n.id !== id));
+    };
 
     const { data, setData, post, processing, reset, errors } = useForm({
         patient_name: '', room_number: '', fluid_type: 'RL',
@@ -198,12 +235,20 @@ export default function Dashboard({ auth, infusions = [] }) {
                 </div>
             )}
 
-            {/* NOTIFIKASI KRITIS */}
-            <div className="fixed bottom-6 right-6 z-50 space-y-4">
+            {/* NOTIFIKASI KRITIS — ATAS TENGAH */}
+            <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 w-full max-w-lg px-4">
                 {activeNotifications.map(notif => (
-                    <div key={notif.id} className="bg-white border-rose-200 border rounded-2xl shadow-xl p-5 flex items-start gap-4 max-w-sm animate-bounce">
-                        <Bell className="text-rose-500 shrink-0" />
-                        <div><p className="text-xs font-bold text-rose-600">Peringatan!</p><p className="text-sm font-bold text-slate-800">{notif.message}</p></div>
+                    <div key={notif.id} className="bg-white border-rose-200 border-2 rounded-2xl shadow-2xl p-4 flex items-center gap-4 w-full animate-[slideDown_0.4s_ease-out]">
+                        <div className="bg-rose-100 p-2.5 rounded-xl shrink-0 animate-pulse">
+                            <Bell className="text-rose-500" size={20} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Peringatan Kritis!</p>
+                            <p className="text-sm font-bold text-slate-800 truncate">{notif.message}</p>
+                        </div>
+                        <button onClick={() => stopAlarm(notif.id)} className="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 active:scale-95 transition-all">
+                            Matikan
+                        </button>
                     </div>
                 ))}
             </div>
@@ -211,6 +256,7 @@ export default function Dashboard({ auth, infusions = [] }) {
             {/* INI PENGGANTI TAG STYLE JSX YANG BIKIN ERROR */}
             <style dangerouslySetInnerHTML={{ __html: `
                 @keyframes popIn { 0% { opacity: 0; transform: scale(0.9) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+                @keyframes slideDown { 0% { opacity: 0; transform: translateY(-30px); } 100% { opacity: 1; transform: translateY(0); } }
             ` }} />
         </AuthenticatedLayout>
     );
