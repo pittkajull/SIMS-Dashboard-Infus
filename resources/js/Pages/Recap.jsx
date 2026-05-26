@@ -105,8 +105,8 @@ export default function Recap({ auth, infusion, logs }) {
                                     Menghubungkan ke Perangkat IoT...
                                 </div>
                             }>
-                                {/* KIRIM PERCENTAGE KE KOMPONEN 3D */}
-                                <InfusionModel percentage={percentage} />
+                                {/* KIRIM PERCENTAGE & STATUS KE KOMPONEN 3D */}
+                                <InfusionModel percentage={percentage} status={infusion.status} />
                             </Suspense>
                         </div>
 

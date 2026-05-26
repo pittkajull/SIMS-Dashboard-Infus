@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm, Link } from '@inertiajs/react';
 import { useEffect, useState, useRef } from 'react';
 import { Activity, Droplet, AlertCircle, Users, Clock, Plus, X, FileText, HeartPulse, Stethoscope, Bell } from 'lucide-react';
+import InfusionBag from '@/Components/InfusionBag';
 
 export default function Dashboard({ auth, infusions = [] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -130,16 +131,26 @@ export default function Dashboard({ auth, infusions = [] }) {
                             </div>
 
                             <div className={`p-5 rounded-2xl border ${item.status === 'warning' ? 'bg-white border-rose-100' : 'bg-slate-50 border-slate-100'}`}>
-                                <div className="flex justify-between items-end mb-4">
-                                    <div><p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Volume Sisa</p><p className={`text-3xl font-black ${item.status === 'warning' ? 'text-rose-600' : 'text-slate-800'}`}>{item.current_remaining} <span className="text-xs">ml</span></p></div>
-                                    <div className="text-right"><p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Rate</p><p className="text-2xl font-black text-slate-800">{item.tpm_calculated} <span className="text-xs">tpm</span></p></div>
-                                </div>
-                                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                                    <div className={`h-full transition-all duration-1000 ${item.status === 'warning' ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${item.percentage_remaining}%` }}></div>
-                                </div>
-                                <div className="flex justify-between mt-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                    <span><Clock size={10} className="inline mr-1" /> {item.estimated_time_remaining}</span>
-                                    <span>{item.flowrate} ml/h</span>
+                                <div className="flex items-center gap-4">
+                                    {/* Animasi Kantong Infus */}
+                                    <div className="shrink-0">
+                                        <InfusionBag percentage={item.percentage_remaining} status={item.status} size={80} />
+                                    </div>
+                                    {/* Info Volume & Rate */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex justify-between items-end mb-3">
+                                            <div><p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Volume Sisa</p><p className={`text-2xl font-black ${item.status === 'warning' ? 'text-rose-600' : 'text-slate-800'}`}>{item.current_remaining} <span className="text-xs">ml</span></p></div>
+                                            <div className="text-right"><p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Rate</p><p className="text-xl font-black text-slate-800">{item.tpm_calculated} <span className="text-xs">tpm</span></p></div>
+                                        </div>
+                                        {/* Progress bar */}
+                                        <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                            <div className={`h-full transition-all duration-1000 ${item.status === 'warning' ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${item.percentage_remaining}%` }}></div>
+                                        </div>
+                                        <div className="flex justify-between mt-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                            <span><Clock size={10} className="inline mr-1" /> {item.estimated_time_remaining}</span>
+                                            <span>{item.flowrate} ml/h</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

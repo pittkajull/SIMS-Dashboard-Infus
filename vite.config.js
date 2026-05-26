@@ -4,9 +4,9 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
     server: {
-        host: "192.168.1.12", 
+        host: "10.200.18.34", 
         hmr: {
-            host: "192.168.1.12",
+            host: "10.200.18.34",
         },
     },
     plugins: [
@@ -16,4 +16,4 @@ export default defineConfig({
         }),
         react(),
     ],
-});
+}); 
