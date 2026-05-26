@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm, Link } from '@inertiajs/react';
 import { useEffect, useState, useRef } from 'react';
-import { Activity, Droplet, AlertCircle, Users, Clock, Plus, X, FileText, HeartPulse, Stethoscope, Bell } from 'lucide-react';
+import { Activity, Droplet, AlertCircle, Users, Clock, Plus, X, FileText, HeartPulse, Stethoscope, Bell, RefreshCw } from 'lucide-react';
 import InfusionBag from '@/Components/InfusionBag';
 
 export default function Dashboard({ auth, infusions = [] }) {
@@ -162,6 +162,11 @@ export default function Dashboard({ auth, infusions = [] }) {
                                     <div>
                                         <h3 className="text-lg font-bold text-slate-800 line-clamp-1">{item.patient_name}</h3>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.fluid_type} • {item.drip_type}</p>
+                                        {item.infusion_number > 1 && (
+                                            <span className="inline-block mt-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[9px] font-black tracking-widest border border-amber-100 uppercase">
+                                                Infus ke-{item.infusion_number}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                                 <button onClick={() => confirm(`Hapus?`) && router.delete(`/infusions/${item.id}`)} className="p-2 text-slate-300 hover:text-rose-500 transition-colors"><X size={18} /></button>
@@ -191,10 +196,19 @@ export default function Dashboard({ auth, infusions = [] }) {
                                 </div>
                             </div>
 
-                            {/* TOMBOL LIHAT CHARTING - PAKE URL MANUAL BIAR PASTI JALAN */}
+                            {/* TOMBOL LIHAT CHARTING */}
                             <Link href={`/recap/${item.id}`} className="w-full mt-4 py-3.5 rounded-xl border border-slate-200 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-all bg-white shadow-sm">
                                 <FileText size={16} /> Lihat Charting
                             </Link>
+
+                            {/* TOMBOL GANTI INFUS */}
+                            <button onClick={() => {
+                                if (confirm(`Ganti infus untuk ${item.patient_name}? Infus lama akan ditandai selesai.`)) {
+                                    router.post(`/infusions/${item.id}/ganti`, {}, { preserveScroll: true });
+                                }
+                            }} className="w-full mt-2 py-3.5 rounded-xl border border-amber-200 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:bg-amber-50 hover:text-amber-600 hover:border-amber-300 transition-all bg-white shadow-sm">
+                                <RefreshCw size={16} /> Ganti Infus
+                            </button>
                         </div>
                     ))}
                 </div>

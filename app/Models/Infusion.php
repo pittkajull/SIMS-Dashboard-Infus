@@ -10,8 +10,12 @@ class Infusion extends Model
     use HasFactory;
 
     protected $fillable = [
-        'patient_name', 'room_number', 'fluid_type', 'total_volume', 
-        'current_remaining', 'flowrate', 'drip_type', 'status', 'start_time', 'tpm_target'
+        'patient_name', 'room_number', 'patient_group', 'infusion_number', 'fluid_type', 'total_volume',
+        'current_remaining', 'flowrate', 'drip_type', 'status', 'start_time', 'finished_at', 'tpm_target'
+    ];
+
+    protected $casts = [
+        'finished_at' => 'datetime',
     ];
 
     protected $appends = ['tpm_calculated', 'estimated_time_remaining', 'percentage_remaining'];
@@ -38,5 +42,33 @@ class Infusion extends Model
 
     public function logs() {
         return $this->hasMany(InfusionLog::class);
+    }
+
+    public function isActive() {
+        return is_null($this->finished_at);
+    }
+
+    public function gantiInfus($newFluidType = null, $newTotalVolume = null) {
+        // Tandai infus lama selesai
+        $this->update([
+            'status' => 'finished',
+            'finished_at' => now(),
+        ]);
+
+        // Buat infus baru untuk pasien yang sama
+        return Infusion::create([
+            'patient_name' => $this->patient_name,
+            'room_number' => $this->room_number,
+            'patient_group' => $this->patient_group,
+            'infusion_number' => $this->infusion_number + 1,
+            'fluid_type' => $newFluidType ?? $this->fluid_type,
+            'total_volume' => $newTotalVolume ?? $this->total_volume,
+            'current_remaining' => $newTotalVolume ?? $this->total_volume,
+            'flowrate' => $this->flowrate,
+            'drip_type' => $this->drip_type,
+            'tpm_target' => $this->tpm_target,
+            'status' => 'monitoring',
+            'start_time' => now(),
+        ]);
     }
 }

@@ -1,14 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState, Suspense, useEffect } from 'react';
-import InfusionModel from '@/Components/InfusionModel'; // Pastikan file ini sudah ada
-import { 
-    ChevronLeft, Clock, Activity, Droplet, 
-    FileText, Calendar, TrendingDown, Download, 
-    Filter, CheckCircle2 
+import InfusionModel from '@/Components/InfusionModel';
+import {
+    ChevronLeft, Clock, Activity, Droplet,
+    FileText, Calendar, TrendingDown, Download,
+    Filter, CheckCircle2, RefreshCw, Check
 } from 'lucide-react';
 
-export default function Recap({ auth, infusion, logs }) {
+export default function Recap({ auth, infusion, logs, allInfusions = [] }) {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 
@@ -116,13 +116,67 @@ export default function Recap({ auth, infusion, logs }) {
                             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-4 flex items-center gap-2">
                                 <CheckCircle2 size={14} /> Pasien Sedang Dipantau
                             </p>
-                            <h1 className="text-4xl font-black text-slate-800 tracking-tighter mb-4">{infusion.patient_name}</h1>
+                            <div className="flex items-center gap-3 mb-4">
+                                <h1 className="text-4xl font-black text-slate-800 tracking-tighter">{infusion.patient_name}</h1>
+                                {infusion.infusion_number > 1 && (
+                                    <span className="px-3 py-1 rounded-lg bg-amber-50 text-amber-600 text-[10px] font-black tracking-widest border border-amber-100 uppercase">
+                                        Infus ke-{infusion.infusion_number}
+                                    </span>
+                                )}
+                            </div>
                             <div className="flex flex-wrap gap-2">
                                 <span className="bg-slate-100 px-4 py-2 rounded-xl text-xs font-bold text-slate-700">BED {infusion.room_number}</span>
                                 <span className="bg-emerald-50 px-4 py-2 rounded-xl text-xs font-bold text-emerald-600 uppercase">{infusion.fluid_type}</span>
                                 <span className="bg-slate-50 px-4 py-2 rounded-xl text-xs font-bold text-slate-400 uppercase">{infusion.drip_type} SET</span>
                             </div>
                         </div>
+
+                        {/* HISTORI GANTI INFUS */}
+                        {allInfusions.length > 1 && (
+                            <div className="bg-white p-6 rounded-[25px] border border-slate-100 shadow-sm">
+                                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+                                    <RefreshCw size={12} className="text-amber-500" /> Histori Ganti Infus
+                                </h3>
+                                <div className="space-y-2">
+                                    {allInfusions.map((item) => {
+                                        const isActive = item.id === infusion.id;
+                                        const isFinished = item.finished_at !== null;
+                                        const startTime = new Date(item.start_time);
+                                        const endTime = item.finished_at ? new Date(item.finished_at) : new Date();
+                                        const durationMin = Math.floor((endTime - startTime) / 60000);
+                                        const hours = Math.floor(durationMin / 60);
+                                        const mins = durationMin % 60;
+                                        const durationStr = hours > 0 ? `${hours}j ${mins}m` : `${mins}m`;
+
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                onClick={() => router.get(`/recap/${item.id}`)}
+                                                className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${
+                                                    isActive
+                                                        ? 'bg-emerald-50 border-emerald-200 shadow-sm'
+                                                        : 'bg-slate-50 border-slate-100 hover:bg-slate-100'
+                                                }`}
+                                            >
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black ${
+                                                    isActive ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'
+                                                }`}>
+                                                    {item.infusion_number}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-bold text-slate-800">Infus ke-{item.infusion_number}</span>
+                                                        {isActive && <span className="text-[9px] font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded uppercase">Aktif</span>}
+                                                        {isFinished && <span className="text-[9px] font-black text-slate-400 bg-slate-200 px-2 py-0.5 rounded uppercase flex items-center gap-1"><Check size={8} /> Selesai</span>}
+                                                    </div>
+                                                    <p className="text-[10px] font-bold text-slate-400">{item.total_volume}ml {item.fluid_type} • {durationStr}</p>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
 
                     </div>
 

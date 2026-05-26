@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use App\Models\Infusion;
 use App\Models\InfusionLog;
@@ -21,7 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ==========================================
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard', [
-            'infusions' => Infusion::latest()->get()
+            'infusions' => Infusion::whereNull('finished_at')->latest('start_time')->get()
         ]);
     })->name('dashboard');
 
@@ -43,6 +44,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Infusion::create([
             'patient_name'      => $validated['patient_name'],
             'room_number'       => $validated['room_number'],
+            'patient_group'     => Str::slug($validated['patient_name'] . '_' . $validated['room_number']),
+            'infusion_number'   => 1,
             'fluid_type'        => $validated['fluid_type'],
             'total_volume'      => $validated['total_volume'],
             'current_remaining' => $validated['total_volume'],
@@ -58,11 +61,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Digital Charting / Rekap
     Route::get('/recap/{id}', function ($id) {
+        $infusion = Infusion::findOrFail($id);
+        $allInfusions = Infusion::where('patient_group', $infusion->patient_group)
+            ->orderBy('infusion_number')
+            ->get();
+        $logs = InfusionLog::where('infusion_id', $id)
+            ->latest()
+            ->take(50)
+            ->get();
+
         return Inertia::render('Recap', [
-            'infusion' => Infusion::findOrFail($id),
-            'logs'     => InfusionLog::where('infusion_id', $id)->latest()->take(50)->get()
+            'infusion'     => $infusion,
+            'allInfusions' => $allInfusions,
+            'logs'         => $logs,
         ]);
     })->name('infusions.recap');
+
+    // Ganti Infus (tandai selesai + buat baru)
+    Route::post('/infusions/{id}/ganti', function ($id) {
+        $infusion = Infusion::findOrFail($id);
+        if (!$infusion->isActive()) {
+            return redirect()->back()->with('error', 'Infus sudah ditandai selesai.');
+        }
+        $infusion->gantiInfus();
+        return redirect()->route('dashboard');
+    })->name('infusions.ganti');
 
     // Hapus Monitoring
     Route::delete('/infusions/{id}', function ($id) {
