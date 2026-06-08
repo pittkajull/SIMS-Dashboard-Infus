@@ -1,58 +1,140 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="public/mayapada_logo.png" width="200" alt="Mayapada Hospital Logo" />
 </p>
 
-## About Laravel
+<h1 align="center">SIMS — Smart Infusion Monitoring System</h1>
+<h3 align="center">Mayapada Hospital × Universitas Brawijaya</h3>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-v13-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel" />
+  <img src="https://img.shields.io/badge/React-Inertia.js-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/ESP32-Firmware-3C3C3C?style=flat-square&logo=espressif&logoColor=E7352C" alt="ESP32" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-v3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" />
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<p align="center">
+  Sistem pemantauan infus berbasis IoT secara <strong>real-time</strong> yang menggabungkan hardware ESP32 (HX711 Load Cell + Sensor IR) dengan dashboard web Laravel + React untuk tenaga medis Mayapada Hospital.
+</p>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## ✨ Fitur Utama
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Fitur | Keterangan |
+|---|---|
+| 📡 **Real-time Monitoring** | Data cairan infus diperbarui otomatis setiap 2 detik |
+| ⚠️ **Peringatan Kritis** | Alarm audio + visual otomatis saat cairan hampir habis |
+| 📊 **Digital Charting** | Riwayat lengkap log tetesan per pasien |
+| 🔄 **Ganti Infus** | Fitur ganti infus langsung dari dashboard |
+| 📁 **Ekspor CSV** | Export data charting pasien ke file CSV |
+| 🧊 **3D Digital Twin** | Visualisasi 3D kantong infus real-time di halaman Recap |
+| 📱 **Responsive Design** | Tampilan optimal di semua ukuran layar |
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 🛠️ Teknologi yang Digunakan
 
-## Agentic Development
+### Backend & Frontend
+- **Laravel 13** — Backend framework (REST API + Web)
+- **Inertia.js + React** — Frontend SPA tanpa API terpisah
+- **Tailwind CSS** — Styling
+- **Three.js / React Three Fiber** — Visualisasi 3D kantong infus
+- **SQLite / MySQL** — Database
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Hardware (ESP32)
+- **ESP32 Dev Module**
+- **HX711** — Load Cell (pembaca berat botol infus)
+- **Sensor Infrared (IR)** — Penghitung tetesan
+- **Library:** `HX711`, `ArduinoJson`, `WiFi`, `HTTPClient`
+
+---
+
+## 🚀 Cara Menjalankan (Development)
+
+### Prasyarat
+- PHP 8.2+
+- Composer
+- Node.js 18+
+- npm
+
+### Instalasi
 
 ```bash
-composer require laravel/boost --dev
+# 1. Clone repository
+git clone https://github.com/Zenqirtz/Smart-Infusion-Monitoring-System.git
+cd Smart-Infusion-Monitoring-System
 
-php artisan boost:install
+# 2. Install dependencies PHP
+composer install
+
+# 3. Install dependencies Node
+npm install
+
+# 4. Salin file environment
+cp .env.example .env
+php artisan key:generate
+
+# 5. Migrasi database
+php artisan migrate
+
+# 6. Jalankan server (di dua terminal berbeda)
+php artisan serve          # Terminal 1 — Backend Laravel
+npm run dev                # Terminal 2 — Vite (frontend)
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Buka browser ke: `http://localhost:8000`
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🔌 Konfigurasi ESP32
 
-## Code of Conduct
+Sketch firmware tersedia di folder `esp32_sketch/esp32_sketch.ino`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Sesuaikan variabel berikut sebelum upload ke ESP32:
 
-## Security Vulnerabilities
+```cpp
+// Sesuaikan SSID dan password WiFi
+const char* WIFI_SSID     = "NAMA_WIFI";
+const char* WIFI_PASSWORD = "PASSWORD_WIFI";
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+// Ganti dengan IP PC yang menjalankan Laravel + ID infus pasien
+const char* BACKEND_URL = "http://<IP_PC>:8000/api/update-infusion/<ID_INFUS>";
 
-## License
+// Kalibrasi sensor
+float CALIBRATION_FACTOR  = 1160.0;   // Sesuaikan hasil kalibrasi
+float BERAT_BOTOL_KOSONG  = 65.0;     // Berat botol kosong (gram)
+float VOLUME_BOTOL_ML     = 500.0;    // Volume cairan awal (ml)
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Library yang dibutuhkan (Arduino IDE Library Manager):**
+- `HX711` by Bogdan Necula
+- `ArduinoJson` by Benoit Blanchon (v7.x)
+
+---
+
+## 📡 API Endpoint (ESP32 → Laravel)
+
+| Method | URL | Deskripsi |
+|---|---|---|
+| `POST` | `/api/update-infusion/{id}` | Kirim data TPM dari ESP32 |
+
+**Request Body (JSON):**
+```json
+{
+  "tpm": 60.0
+}
+```
+
+---
+
+## 👥 Tim Pengembang
+
+**Kelompok 7 T4C — Universitas Brawijaya**  
+Mata Kuliah: Analisis Perancangan Sistem (VTI52421)
+
+---
+
+## 📄 Lisensi
+
+Proyek ini bersifat open-source dan dilisensikan di bawah [MIT License](https://opensource.org/licenses/MIT).
