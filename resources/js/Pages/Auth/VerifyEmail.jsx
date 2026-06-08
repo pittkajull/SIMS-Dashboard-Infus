@@ -12,7 +12,7 @@ export default function VerifyEmail({ status }) {
 
     return (
         <GuestLayout>
-            <Head title="Verifikasi Email - RSUD BANTEN" />
+            <Head title="Verifikasi Email - Mayapada Hospital" />
 
             <div className="mb-6 text-center">
                 <div className="inline-flex p-4 bg-emerald-50 rounded-full mb-4 text-emerald-600 border border-emerald-100 shadow-sm">

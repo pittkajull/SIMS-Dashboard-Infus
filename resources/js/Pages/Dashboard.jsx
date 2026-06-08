@@ -101,12 +101,12 @@ export default function Dashboard({ auth, infusions = [] }) {
             header={
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full gap-5 relative z-20">
                     <div className="flex items-center gap-5">
-                        <div className="relative bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
-                            <Activity className="text-emerald-500 animate-pulse" size={28} />
+                        <div className="relative bg-white p-2 rounded-xl shadow-sm border border-slate-200">
+                            <img src="/mayapada_logo.png" alt="Mayapada Hospital" className="h-10 object-contain" />
                         </div>
                         <div>
                             <div className="flex items-center gap-3">
-                                <h2 className="font-black text-3xl tracking-tighter text-slate-800 leading-none">RSUD BANTEN</h2>
+                                <h2 className="font-black text-2xl tracking-tighter text-slate-800 leading-none">MAYAPADA HOSPITAL</h2>
                                 <span className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 text-[9px] font-black tracking-widest border border-emerald-100 uppercase">Live</span>
                             </div>
                             <p className="text-[11px] text-slate-500 font-bold uppercase tracking-[0.3em] mt-2 flex items-center gap-2">
@@ -125,7 +125,7 @@ export default function Dashboard({ auth, infusions = [] }) {
                 </div>
             }
         >
-            <Head title="Monitoring Center | RSUD BANTEN" />
+            <Head title="Monitoring Center | Mayapada Hospital" />
 
             <div className="py-4 sm:py-8 px-3 sm:px-6 lg:px-8">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 sm:mb-8 gap-3 sm:gap-4">

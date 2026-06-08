@@ -19,7 +19,7 @@ export default function ResetPassword({ token, email }) {
 
     return (
         <GuestLayout>
-            <Head title="Reset Password - RSUD BANTEN" />
+            <Head title="Reset Password - Mayapada Hospital" />
 
             <div className="mb-8 text-center">
                 <div className="inline-flex p-3 bg-emerald-50 rounded-2xl mb-4 text-emerald-600 border border-emerald-100 shadow-sm">

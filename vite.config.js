@@ -1,19 +1,19 @@
-import { defineConfig } from "vite";
-import laravel from "laravel-vite-plugin";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     server: {
-        host: "0.0.0.0",
+        host: '10.10.10.23', // Masukkan IP kamu di sini
         hmr: {
-            host: "192.168.1.18",
+            host: '10.10.10.23',
         },
     },
     plugins: [
         laravel({
-            input: "resources/js/app.jsx",
+            input: 'resources/js/app.jsx',
             refresh: true,
         }),
         react(),
     ],
-}); 
+});

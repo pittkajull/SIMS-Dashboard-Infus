@@ -16,7 +16,7 @@ export default function ConfirmPassword() {
 
     return (
         <GuestLayout>
-            <Head title="Konfirmasi Password - RSUD BANTEN" />
+            <Head title="Konfirmasi Password - Mayapada Hospital" />
 
             <div className="mb-6 text-center">
                 <div className="inline-flex p-3 bg-rose-50 rounded-2xl mb-4 text-rose-500 border border-rose-100 shadow-sm">

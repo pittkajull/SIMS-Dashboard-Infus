@@ -32,11 +32,11 @@ export default function Guest({ children }) {
                         className="relative group mb-6"
                     >
                         <div className="absolute inset-0 bg-emerald-400 blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-full"></div>
-                        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-[2rem] shadow-xl relative z-10 border border-emerald-400/50 group-hover:scale-110 transition-transform duration-300">
-                            <Stethoscope className="w-10 h-10 text-white group-hover:animate-pulse" strokeWidth={2.5} />
+                        <div className="bg-white p-4 rounded-[2rem] shadow-xl relative z-10 border border-slate-200 group-hover:scale-105 transition-transform duration-300">
+                            <img src="/mayapada_logo.png" alt="Mayapada Hospital" className="h-12 object-contain" />
                         </div>
                     </Link>
-                    <h2 className="text-4xl font-black text-slate-800 tracking-tighter leading-none mb-2">RSUD BANTEN</h2>
+                    <h2 className="text-3xl font-black text-slate-800 tracking-tighter leading-none mb-2">MAYAPADA HOSPITAL</h2>
                     <p className="text-emerald-600 text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></span> Smart Infusion System
                     </p>

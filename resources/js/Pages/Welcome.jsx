@@ -43,7 +43,7 @@ export default function Welcome({ auth }) {
 
     return (
         <div className="min-h-screen relative overflow-hidden font-sans selection:bg-emerald-500 selection:text-white text-slate-600 bg-emerald-50/30">
-            <Head title="SIMS - RSUD Banten" />
+            <Head title="SIMS - Mayapada Hospital" />
 
             {/* Background Effects */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -73,11 +73,9 @@ export default function Welcome({ auth }) {
             <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-xl border-b border-slate-200 py-4 shadow-sm' : 'bg-transparent py-6'}`}>
                 <div className="max-w-[1400px] mx-auto px-6 flex justify-between items-center">
                     <div className="flex items-center gap-4">
-                        <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-[0_8px_20px_rgba(16,185,129,0.2)]">
-                            <Stethoscope className="text-white" size={24} strokeWidth={2.5} />
-                        </div>
-                        <div>
-                            <h1 className="font-black text-2xl tracking-tight text-slate-800 leading-none">RSUD BANTEN</h1>
+                        <img src="/mayapada_logo.png" alt="Mayapada Hospital" className="h-10 sm:h-12 object-contain bg-white px-2 py-1.5 rounded-xl border border-slate-200/80 shadow-sm" />
+                        <div className="border-l border-slate-300 pl-4 py-1">
+                            <h1 className="font-black text-xl tracking-tight text-slate-800 leading-none">MAYAPADA HOSPITAL</h1>
                             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-600 mt-1">Smart Infusion Monitoring System</p>
                         </div>
                     </div>
@@ -285,11 +283,9 @@ export default function Welcome({ auth }) {
                 <div className="max-w-[1400px] mx-auto px-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-12">
                         <div className="flex items-center gap-4">
-                            <div className="p-2 bg-white border border-slate-200 rounded-lg text-emerald-500">
-                                <Stethoscope size={24} />
-                            </div>
+                            <img src="/mayapada_logo.png" alt="Mayapada Hospital" className="h-8 object-contain bg-white px-2 py-1 rounded-lg border border-slate-200 shadow-sm" />
                             <div>
-                                <h3 className="font-black text-xl text-slate-800 tracking-tight">RSUD BANTEN</h3>
+                                <h3 className="font-black text-lg text-slate-800 tracking-tight">MAYAPADA HOSPITAL</h3>
                                 <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">SIMS Dashboard</p>
                             </div>
                         </div>
@@ -301,7 +297,7 @@ export default function Welcome({ auth }) {
                     </div>
                     <div className="text-center pt-8 border-t border-slate-200/50">
                         <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">
-                            &copy; {new Date().getFullYear()} Smart Infusion Monitoring System. Dikembangkan untuk Keperluan Medis RSUD.
+                            &copy; {new Date().getFullYear()} Smart Infusion Monitoring System. Dikembangkan untuk Keperluan Medis Mayapada Hospital.
                         </p>
                     </div>
                 </div>

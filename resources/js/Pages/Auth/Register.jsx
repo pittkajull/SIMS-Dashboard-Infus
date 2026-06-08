@@ -19,7 +19,7 @@ export default function Register() {
 
     return (
         <GuestLayout>
-            <Head title="Register - RSUD BANTEN" />
+            <Head title="Register - Mayapada Hospital" />
 
             <div className="mb-8 text-center">
                 <h3 className="text-2xl font-black tracking-tight text-slate-800">Daftar Akun Baru</h3>
@@ -51,7 +51,7 @@ export default function Register() {
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 pl-11 text-sm font-bold text-slate-800 focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none transition-all placeholder:font-medium placeholder:text-slate-400 shadow-sm"
-                            placeholder="nama@rsud.banten.go.id"
+                            placeholder="nama@mayapadahospital.com"
                             required
                         />
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={16} strokeWidth={2.5} />

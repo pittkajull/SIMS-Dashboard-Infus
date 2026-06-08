@@ -14,7 +14,7 @@ export default function ForgotPassword({ status }) {
 
     return (
         <GuestLayout>
-            <Head title="Lupa Password - RSUD BANTEN" />
+            <Head title="Lupa Password - Mayapada Hospital" />
 
             <div className="mb-6 text-center">
                 <h3 className="text-2xl font-black tracking-tight text-slate-800">Lupa Password?</h3>
@@ -38,7 +38,7 @@ export default function ForgotPassword({ status }) {
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 pl-12 text-sm font-bold text-slate-800 focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none transition-all placeholder:font-medium placeholder:text-slate-400 shadow-sm"
-                            placeholder="nama@rsud.banten.go.id"
+                            placeholder="nama@mayapadahospital.com"
                             autoFocus
                             required
                         />
