@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export default function InfusionBag({ percentage = 100, size = 120 }) {
+export default function InfusionBag({ percentage = 100, status = 'monitoring', size = 120 }) {
     const liquidRef = useRef(null);
     const bubblesRef = useRef(null);
     const currentPercRef = useRef(percentage);
@@ -34,8 +34,10 @@ export default function InfusionBag({ percentage = 100, size = 120 }) {
         return () => cancelAnimationFrame(animId);
     }, [percentage]);
 
-    // Warna berdasarkan persentase: hijau > 50%, kuning 25-50%, merah < 25%
+    // Warna berdasarkan status dan persentase
+    const isOffline = status === 'offline';
     const getColors = (p) => {
+        if (isOffline) return { main: '#94a3b8', light: '#cbd5e1' }; // Abu-abu saat offline
         if (p > 50) return { main: '#10b981', light: '#6ee7b7' };
         if (p > 25) return { main: '#eab308', light: '#fde047' };
         return { main: '#f43f5e', light: '#fda4af' };
@@ -44,7 +46,7 @@ export default function InfusionBag({ percentage = 100, size = 120 }) {
     const colors = getColors(percentage);
     const liquidColor = colors.main;
     const liquidColorLight = colors.light;
-    const isWarning = percentage <= 50;
+    const isWarning = !isOffline && percentage <= 50;
 
     return (
         <svg width={size} height={size * 1.3} viewBox="0 0 120 156" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -108,11 +110,19 @@ export default function InfusionBag({ percentage = 100, size = 120 }) {
             <line x1="90" y1="120" x2="93" y2="120" stroke="#94a3b8" strokeWidth="1" />
 
             {/* Percentage text */}
-            <text x="60" y="88" textAnchor="middle" fontSize="18" fontWeight="900"
-                  fill="#fff" fontFamily="Plus Jakarta Sans, sans-serif"
+            <text x="60" y={isOffline ? 82 : 88} textAnchor="middle" fontSize="18" fontWeight="900"
+                  fill={isOffline ? '#64748b' : '#fff'} fontFamily="Plus Jakarta Sans, sans-serif"
                   style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
                 {Math.round(percentage)}%
             </text>
+
+            {/* Offline label */}
+            {isOffline && (
+                <text x="60" y="100" textAnchor="middle" fontSize="8" fontWeight="700"
+                      fill="#f97316" fontFamily="Plus Jakarta Sans, sans-serif">
+                    OFFLINE
+                </text>
+            )}
 
             {/* Shine effect on bag */}
             <path d="M35 30 Q36 65 35 100" stroke="white" strokeWidth="2" opacity="0.3" strokeLinecap="round" />

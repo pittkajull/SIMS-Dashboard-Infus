@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Simpan Pasien Baru
     Route::post('/infusions', function (Request $request) {
         $validated = $request->validate([
+            'device_id'    => 'nullable|string|max:10',
             'patient_name' => 'required|string|max:255',
             'room_number'  => 'required|string|max:50',
             'fluid_type'   => 'required|string|max:255',
@@ -41,14 +42,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'drip_type'    => 'required|in:Mikro,Makro,mikro,makro',
         ]);
 
+        // Validasi: cek apakah device_id sudah dipakai infus aktif lain
+        if (!empty($validated['device_id'])) {
+            $existingDevice = Infusion::where('device_id', $validated['device_id'])
+                ->whereNull('finished_at')
+                ->first();
+
+            if ($existingDevice) {
+                return back()->withErrors([
+                    'device_id' => "Device tersebut sedang digunakan oleh BED {$existingDevice->room_number} ({$existingDevice->patient_name})"
+                ])->withInput();
+            }
+        }
+
         Infusion::create([
+            'device_id'         => $validated['device_id'] ?? null,
             'patient_name'      => $validated['patient_name'],
             'room_number'       => $validated['room_number'],
             'patient_group'     => Str::slug($validated['patient_name'] . '_' . $validated['room_number']),
             'infusion_number'   => 1,
             'fluid_type'        => $validated['fluid_type'],
             'total_volume'      => $validated['total_volume'],
-            'current_remaining' => $validated['total_volume'],
+            'current_remaining' => 0, // Menunggu data dari ESP32
             'flowrate'          => $validated['flowrate'],
             'drip_type'         => $validated['drip_type'],
             'tpm_target'        => 0,
@@ -96,6 +111,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('dashboard');
     })->name('infusions.ganti');
 
+    // Tare Load Cell (kirim command ke ESP32)
+    Route::post('/infusions/{id}/tare', function ($id) {
+        $infusion = Infusion::findOrFail($id);
+        $infusion->update(['tare_command' => true]);
+        return redirect()->back()->with('success', 'Perintah Tare dikirim ke device. Timbangan akan di-reset pada pengiriman data berikutnya.');
+    })->name('infusions.tare');
+
     // Hapus Monitoring
     Route::delete('/infusions/{id}', function ($id) {
         Infusion::findOrFail($id)->delete();
@@ -105,14 +127,61 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ==========================================
     // LOG VIEWER (DEBUG)
     // ==========================================
-    Route::get('/logs', function () {
-        $logPath = storage_path('logs/infusion.log');
+    Route::get('/logs', function (Request $request) {
+        // Ambil semua infus (aktif + selesai) untuk dropdown
+        $infusions = Infusion::orderByDesc('id')
+            ->get(['id', 'device_id', 'patient_name', 'room_number', 'finished_at']);
+
+        // Filter by device_id jika dipilih
+        $selectedDevice = $request->input('device');
+
+        // Baca semua log file (hari ini + kemarin), urutkan dari terlama ke terbaru
         $logs = '';
-        if (file_exists($logPath)) {
-            $logs = file_get_contents($logPath);
+        $logFiles = [
+            storage_path('logs/infusion-' . now()->subDay()->format('Y-m-d') . '.log'),
+            storage_path('logs/infusion-' . now()->format('Y-m-d') . '.log'),
+        ];
+
+        foreach ($logFiles as $logPath) {
+            if (file_exists($logPath)) {
+                $logs .= file_get_contents($logPath);
+            }
         }
+
+        // Fallback ke log file lama jika yang baru tidak ada
+        if (empty($logs)) {
+            $legacyPath = storage_path('logs/infusion.log');
+            if (file_exists($legacyPath)) {
+                $logs = file_get_contents($legacyPath);
+            }
+        }
+
+        // Fallback ke log file lama jika yang baru tidak ada
+        if (empty($logs)) {
+            $legacyPath = storage_path('logs/infusion.log');
+            if (file_exists($legacyPath)) {
+                $logs = file_get_contents($legacyPath);
+            }
+        }
+
+        // Filter log berdasarkan device_id jika dipilih
+        if ($selectedDevice) {
+            $filteredLines = [];
+            foreach (explode("\n", $logs) as $line) {
+                if (stripos($line, '"device_id":"' . $selectedDevice . '"') !== false ||
+                    stripos($line, '"device_id": "' . $selectedDevice . '"') !== false ||
+                    stripos($line, 'device_id=' . $selectedDevice) !== false ||
+                    stripos($line, 'device_id: ' . $selectedDevice) !== false) {
+                    $filteredLines[] = $line;
+                }
+            }
+            $logs = implode("\n", $filteredLines);
+        }
+
         return Inertia::render('LogViewer', [
             'logs' => $logs,
+            'infusions' => $infusions,
+            'selectedDevice' => $selectedDevice,
         ]);
     })->name('logs.viewer');
 

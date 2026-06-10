@@ -66,8 +66,10 @@ function IVBag({ percentage = 100, status = 'monitoring' }) {
         depthWrite: false,
     }), []);
 
-    // Warna cairan berdasarkan persentase (hijau > 50%, kuning 25-50%, merah < 25%)
+    // Warna cairan berdasarkan status dan persentase
+    const isOffline = status === 'offline';
     const getLiquidColors = (p) => {
+        if (isOffline) return { main: '#64748b', light: '#94a3b8' };    // Abu-abu saat offline
         if (p > 50) return { main: '#22c55e', light: '#86efac' };      // Hijau — aman
         if (p > 25) return { main: '#eab308', light: '#fde047' };      // Kuning — waspada
         return { main: '#ef4444', light: '#fca5a5' };                   // Merah — kritis
@@ -212,7 +214,7 @@ function IVBag({ percentage = 100, status = 'monitoring' }) {
             </mesh>
 
             {/* === TETESAN ANIMASI === */}
-            <DropletAnim percentage={currentPercRef.current} />
+            <DropletAnim percentage={currentPercRef.current} isOffline={isOffline} />
 
             {/* === LABEL STRIP (depan kantong) === */}
             <mesh position={[0, 0.15, bagD / 2 + 0.01]}>
@@ -243,13 +245,14 @@ function IVBag({ percentage = 100, status = 'monitoring' }) {
 }
 
 // ==================== ANIMASI TETESAN ====================
-function DropletAnim({ percentage }) {
+function DropletAnim({ percentage, isOffline = false }) {
     const dropRef = useRef();
     const trailRef = useRef();
     const dropMatRef = useRef();
     const trailMatRef = useRef();
 
     const getColor = (p) => {
+        if (isOffline) return '#64748b';
         if (p > 50) return '#22c55e';
         if (p > 25) return '#eab308';
         return '#ef4444';
@@ -257,6 +260,11 @@ function DropletAnim({ percentage }) {
 
     useFrame((state) => {
         if (!dropRef.current) return;
+        if (isOffline) {
+            dropRef.current.visible = false;
+            if (trailRef.current) trailRef.current.visible = false;
+            return;
+        }
         const time = state.clock.elapsedTime;
         const cycle = (time * 1.5) % 2.5;
 
@@ -298,9 +306,13 @@ function DropletAnim({ percentage }) {
 }
 
 // ==================== SCENE 3D ====================
-export default function InfusionModel({ percentage = 100, status = 'monitoring' }) {
+export default function InfusionModel({ percentage = 100, status = 'monitoring', deviceStatus = 'online' }) {
+    const isOffline = deviceStatus === 'offline' || deviceStatus === 'no_device' || deviceStatus === 'no_data';
+
     return (
-        <div className="w-full h-[450px] bg-slate-900 rounded-[32px] overflow-hidden relative border-4 border-slate-800 shadow-2xl">
+        <div className={`w-full h-[450px] rounded-[32px] overflow-hidden relative border-4 shadow-2xl transition-all duration-500 ${
+            isOffline ? 'bg-slate-800 border-slate-700' : 'bg-slate-900 border-slate-800'
+        }`}>
             <Suspense fallback={
                 <div className="absolute inset-0 flex items-center justify-center">
                     <p className="text-white text-xs font-black animate-pulse uppercase">Loading 3D Model...</p>
@@ -308,12 +320,12 @@ export default function InfusionModel({ percentage = 100, status = 'monitoring' 
             }>
                 <Canvas shadows dpr={[1, 2]}>
                     <PerspectiveCamera makeDefault position={[0, 0, 5.5]} fov={40} />
-                    <ambientLight intensity={0.5} />
-                    <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
-                    <pointLight position={[-4, 3, 4]} intensity={0.5} color="#60a5fa" />
-                    <pointLight position={[4, -2, 3]} intensity={0.3} color="#34d399" />
-                    {/* Cahaya dari belakang biar efek transparan kantong keliatan */}
-                    <pointLight position={[0, 0, -3]} intensity={0.4} color="#ffffff" />
+                    {/* Cahaya redup saat offline */}
+                    <ambientLight intensity={isOffline ? 0.15 : 0.5} />
+                    <directionalLight position={[5, 8, 5]} intensity={isOffline ? 0.3 : 1.2} castShadow />
+                    <pointLight position={[-4, 3, 4]} intensity={isOffline ? 0.1 : 0.5} color={isOffline ? '#94a3b8' : '#60a5fa'} />
+                    <pointLight position={[4, -2, 3]} intensity={isOffline ? 0.1 : 0.3} color={isOffline ? '#94a3b8' : '#34d399'} />
+                    <pointLight position={[0, 0, -3]} intensity={isOffline ? 0.1 : 0.4} color="#ffffff" />
 
                     <PresentationControls
                         global
@@ -321,7 +333,7 @@ export default function InfusionModel({ percentage = 100, status = 'monitoring' 
                         polar={[-Math.PI / 3, Math.PI / 3]}
                         azimuth={[-Math.PI / 4, Math.PI / 4]}
                     >
-                        <IVBag percentage={percentage} status={status} />
+                        <IVBag percentage={percentage} status={isOffline ? 'offline' : status} />
                     </PresentationControls>
 
                     <OrbitControls
@@ -330,35 +342,59 @@ export default function InfusionModel({ percentage = 100, status = 'monitoring' 
                         minDistance={3}
                         maxDistance={10}
                         autoRotate
-                        autoRotateSpeed={0.5}
+                        autoRotateSpeed={isOffline ? 0 : 0.5}
                     />
 
-                    <color attach="background" args={['#0f172a']} />
-                    <fog attach="fog" args={['#0f172a', 8, 20]} />
+                    <color attach="background" args={[isOffline ? '#1e293b' : '#0f172a']} />
+                    <fog attach="fog" args={[isOffline ? '#1e293b' : '#0f172a', 8, 20]} />
                 </Canvas>
             </Suspense>
 
+            {/* ===== OVERLAY OFFLINE: Popup Warning ===== */}
+            {isOffline && (
+                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                    <div className="bg-slate-900/80 backdrop-blur-md border-2 border-orange-500/50 rounded-2xl px-8 py-6 text-center shadow-2xl shadow-orange-500/20 animate-pulse">
+                        <div className="text-4xl mb-3">⚠️</div>
+                        <p className="text-orange-400 font-black text-sm uppercase tracking-widest mb-1">Device Infus</p>
+                        <p className="text-orange-300 font-black text-lg uppercase tracking-wider">Tidak Tersedia</p>
+                        <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-widest">
+                            {deviceStatus === 'offline' ? 'Koneksi terputus' : 'Device belum terpasang'}
+                        </p>
+                    </div>
+                </div>
+            )}
+
             {/* Label Percentage */}
             <div className={`absolute bottom-6 left-6 px-4 py-2 rounded-xl font-black text-lg shadow-lg border-2 ${
-                status === 'warning'
-                    ? 'bg-rose-500 text-white border-rose-400'
-                    : 'bg-emerald-500 text-white border-emerald-400'
+                isOffline
+                    ? 'bg-slate-600 text-slate-300 border-slate-500'
+                    : status === 'warning'
+                        ? 'bg-rose-500 text-white border-rose-400'
+                        : 'bg-emerald-500 text-white border-emerald-400'
             }`}>
-                {Math.round(percentage)}%
+                {isOffline ? '--' : `${Math.round(percentage)}%`}
             </div>
 
             {/* Status Label */}
-            <div className="absolute top-6 right-6 bg-white/10 backdrop-blur-md px-3 py-1 rounded-lg border border-white/20">
-                <p className="text-[8px] font-black text-white/50 uppercase tracking-widest">Live IoT Feedback</p>
+            <div className={`absolute top-6 right-6 px-3 py-1 rounded-lg border ${
+                isOffline
+                    ? 'bg-orange-500/20 border-orange-500/30'
+                    : 'bg-white/10 border-white/20'
+            } backdrop-blur-md`}>
+                <p className={`text-[8px] font-black uppercase tracking-widest ${
+                    isOffline ? 'text-orange-400' : 'text-white/50'
+                }`}>
+                    {isOffline ? 'Device Offline' : 'Live IoT Feedback'}
+                </p>
             </div>
 
             {/* Info Cairan */}
             <div className="absolute bottom-6 right-6 text-right">
                 <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Cairan Infus</p>
                 <p className={`text-xl font-black ${
-                    percentage <= 25 ? 'text-rose-400' : percentage <= 50 ? 'text-yellow-400' : 'text-emerald-400'
+                    isOffline ? 'text-slate-500' : percentage <= 25 ? 'text-rose-400' : percentage <= 50 ? 'text-yellow-400' : 'text-emerald-400'
                 }`}>
-                    {percentage <= 25 ? 'KRITIS' : percentage <= 50 ? 'WASPADA' : 'AMAN'}
+                    {isOffline ? 'N/A' : percentage <= 25 ? 'KRITIS' : percentage <= 50 ? 'WASPADA' : 'AMAN'}
                 </p>
             </div>
         </div>

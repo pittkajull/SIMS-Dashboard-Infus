@@ -5,7 +5,7 @@ import InfusionModel from '@/Components/InfusionModel';
 import {
     ChevronLeft, Clock, Activity, Droplet,
     FileText, Calendar, TrendingDown, Download,
-    Filter, CheckCircle2, RefreshCw, Check
+    Filter, CheckCircle2, RefreshCw, Check, WifiOff
 } from 'lucide-react';
 
 export default function Recap({ auth, infusion, logs, allInfusions = [] }) {
@@ -126,15 +126,25 @@ export default function Recap({ auth, infusion, logs, allInfusions = [] }) {
                                 </div>
                             }>
                                 {/* KIRIM PERCENTAGE & STATUS KE KOMPONEN 3D */}
-                                <InfusionModel percentage={percentage} status={infusion.status} />
+                                <InfusionModel percentage={percentage} status={infusion.status} deviceStatus={infusion.device_status} />
                             </Suspense>
                         </div>
 
                         {/* DETAIL PASIEN CARD */}
                         <div className="bg-white p-5 sm:p-8 rounded-2xl sm:rounded-[35px] border border-slate-100 shadow-sm relative overflow-hidden">
                             <div className="absolute right-0 top-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                            <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-3 sm:mb-4 flex items-center gap-2">
-                                <CheckCircle2 size={12} className="sm:w-3.5 sm:h-3.5" /> Pasien Sedang Dipantau
+                            <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-3 sm:mb-4 flex items-center gap-2 ${
+                                infusion.device_status === 'offline' ? 'text-orange-500' :
+                                infusion.device_status === 'no_device' || infusion.device_status === 'no_data' ? 'text-slate-400' :
+                                'text-emerald-500'
+                            }`}>
+                                {infusion.device_status === 'offline' ? (
+                                    <><WifiOff size={12} className="sm:w-3.5 sm:h-3.5" /> Device Offline — Data Terakhir: {infusion.last_data_at}</>
+                                ) : infusion.device_status === 'no_device' || infusion.device_status === 'no_data' ? (
+                                    <><WifiOff size={12} className="sm:w-3.5 sm:h-3.5" /> Belum Terkoneksi Device</>
+                                ) : (
+                                    <><CheckCircle2 size={12} className="sm:w-3.5 sm:h-3.5" /> Pasien Sedang Dipantau</>
+                                )}
                             </p>
                             <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                                 <h1 className="text-2xl sm:text-4xl font-black text-slate-800 tracking-tighter">{infusion.patient_name}</h1>

@@ -78,7 +78,7 @@ export default function Dashboard({ auth, infusions = [] }) {
     };
 
     const { data, setData, post, processing, reset, errors } = useForm({
-        patient_name: '', room_number: '', fluid_type: 'RL',
+        device_id: '', patient_name: '', room_number: '', fluid_type: 'RL',
         total_volume: 500, flowrate: 60, drip_type: 'Makro',
     });
 
@@ -160,7 +160,7 @@ export default function Dashboard({ auth, infusions = [] }) {
                 {/* PATIENT GRID */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {infusions.map((item) => (
-                        <div key={item.id} className={`rounded-2xl sm:rounded-[32px] p-4 sm:p-6 border transition-all ${item.status === 'warning' ? 'bg-rose-50 border-rose-200 shadow-md' : 'bg-white border-slate-200 shadow-sm hover:shadow-lg'}`}>
+                        <div key={item.id} className={`rounded-2xl sm:rounded-[32px] p-4 sm:p-6 border transition-all ${item.status === 'warning' ? 'bg-rose-50 border-rose-200 shadow-md' : item.device_status === 'offline' ? 'bg-orange-50/50 border-orange-200 shadow-sm' : 'bg-white border-slate-200 shadow-sm hover:shadow-lg'}`}>
                             <div className="flex justify-between items-start mb-4 sm:mb-6">
                                 <div className="flex items-start gap-3 sm:gap-4">
                                     <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center font-black text-base sm:text-lg ${item.status === 'warning' ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-700'}`}>{item.room_number}</div>
@@ -176,32 +176,76 @@ export default function Dashboard({ auth, infusions = [] }) {
                                                     Infus ke-{item.infusion_number}
                                                 </span>
                                             )}
+                                            {item.device_status === 'online' && (
+                                                <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 text-[8px] sm:text-[9px] font-black tracking-widest border border-emerald-100 uppercase flex items-center gap-1">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Device Online
+                                                </span>
+                                            )}
+                                            {item.device_status === 'offline' && (
+                                                <span className="px-2 py-0.5 rounded-md bg-orange-50 text-orange-600 text-[8px] sm:text-[9px] font-black tracking-widest border border-orange-100 uppercase flex items-center gap-1">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Device Offline
+                                                </span>
+                                            )}
+                                            {item.device_status === 'no_device' && (
+                                                <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[8px] sm:text-[9px] font-black tracking-widest border border-slate-200 uppercase">
+                                                    ⚠ Belum Terkoneksi Device
+                                                </span>
+                                            )}
+                                            {item.device_status === 'no_data' && (
+                                                <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-500 text-[8px] sm:text-[9px] font-black tracking-widest border border-blue-100 uppercase animate-pulse">
+                                                    📡 Menunggu Data Sensor
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
-                                <button onClick={() => confirm(`Hapus?`) && router.delete(`/infusions/${item.id}`)} className="p-1.5 sm:p-2 text-slate-300 hover:text-rose-500 transition-colors"><X size={16} className="sm:w-[18px] sm:h-[18px]" /></button>
+                                <div className="flex items-center gap-1">
+                                    {item.device_id && (
+                                        <button onClick={() => confirm(`Tare timbangan untuk ${item.patient_name}?\nPastikan load cell kosong (tidak ada beban).`) && router.post(`/infusions/${item.id}/tare`)} className="p-1.5 sm:p-2 text-slate-300 hover:text-emerald-500 transition-colors" title="Tare Load Cell (Reset Timbangan)"><RefreshCw size={16} className="sm:w-[18px] sm:h-[18px]" /></button>
+                                    )}
+                                    <button onClick={() => confirm(`Hapus?`) && router.delete(`/infusions/${item.id}`)} className="p-1.5 sm:p-2 text-slate-300 hover:text-rose-500 transition-colors"><X size={16} className="sm:w-[18px] sm:h-[18px]" /></button>
+                                </div>
                             </div>
 
-                            <div className={`p-3 sm:p-5 rounded-xl sm:rounded-2xl border ${item.status === 'warning' ? 'bg-white border-rose-100' : 'bg-slate-50 border-slate-100'}`}>
+                            <div className={`p-3 sm:p-5 rounded-xl sm:rounded-2xl border ${item.status === 'warning' ? 'bg-white border-rose-100' : item.device_status === 'offline' ? 'bg-orange-50/30 border-orange-100' : 'bg-slate-50 border-slate-100'}`}>
                                 <div className="flex items-center gap-3 sm:gap-4">
                                     {/* Animasi Kantong Infus */}
                                     <div className="shrink-0">
-                                        <InfusionBag percentage={item.percentage_remaining} status={item.status} size={60} />
+                                        <InfusionBag percentage={item.percentage_remaining} status={item.device_status === 'offline' ? 'offline' : item.status} size={60} />
                                     </div>
                                     {/* Info Volume & Rate */}
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-end mb-2 sm:mb-3">
-                                            <div><p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase mb-0.5 sm:mb-1">Volume Sisa</p><p className={`text-xl sm:text-2xl font-black ${item.status === 'warning' ? 'text-rose-600' : 'text-slate-800'}`}>{item.current_remaining} <span className="text-[10px] sm:text-xs">ml</span></p></div>
-                                            <div className="text-right"><p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase mb-0.5 sm:mb-1">Rate</p><p className="text-lg sm:text-xl font-black text-slate-800">{item.tpm_calculated} <span className="text-[10px] sm:text-xs">tpm</span></p></div>
-                                        </div>
-                                        {/* Progress bar */}
-                                        <div className="h-1.5 sm:h-2 bg-slate-200 rounded-full overflow-hidden">
-                                            <div className={`h-full transition-all duration-1000 ${item.status === 'warning' ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${item.percentage_remaining}%` }}></div>
-                                        </div>
-                                        <div className="flex justify-between mt-1.5 sm:mt-2 text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                            <span><Clock size={10} className="inline mr-1" /> {item.estimated_time_remaining}</span>
-                                            <span>{item.flowrate} ml/h</span>
-                                        </div>
+                                        {(item.device_status === 'no_device' || item.device_status === 'no_data') ? (
+                                            <div className="py-2 sm:py-3 text-center">
+                                                <p className="text-xs sm:text-sm font-bold text-slate-400">
+                                                    {item.device_status === 'no_device' ? '⚠ Belum Terkoneksi Device' : '📡 Menunggu Data dari Sensor...'}
+                                                </p>
+                                                <p className="text-[9px] sm:text-[10px] text-slate-400 mt-1">
+                                                    {item.device_status === 'no_device'
+                                                        ? 'Pasangkan device ESP32 untuk mulai monitoring'
+                                                        : `Device ${item.device_id} terpasang — menunggu data pertama`
+                                                    }
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="flex justify-between items-end mb-2 sm:mb-3">
+                                                    <div><p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase mb-0.5 sm:mb-1">Volume Sisa</p><p className={`text-xl sm:text-2xl font-black ${item.status === 'warning' ? 'text-rose-600' : item.device_status === 'offline' ? 'text-orange-600' : 'text-slate-800'}`}>{item.current_remaining} <span className="text-[10px] sm:text-xs">ml</span></p></div>
+                                                    <div className="text-right"><p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase mb-0.5 sm:mb-1">TPM Aktual</p><p className={`text-lg sm:text-xl font-black ${item.tpm_actual <= 0 ? 'text-rose-500' : 'text-slate-800'}`}>{item.tpm_actual} <span className="text-[10px] sm:text-xs">tpm</span></p></div>
+                                                </div>
+                                                {/* Progress bar */}
+                                                <div className="h-1.5 sm:h-2 bg-slate-200 rounded-full overflow-hidden">
+                                                    <div className={`h-full transition-all duration-1000 ${item.status === 'warning' ? 'bg-rose-500' : item.device_status === 'offline' ? 'bg-orange-400' : 'bg-emerald-500'}`} style={{ width: `${item.percentage_remaining}%` }}></div>
+                                                </div>
+                                                <div className="flex justify-between mt-1.5 sm:mt-2 text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                                    <span><Clock size={10} className="inline mr-1" /> {item.estimated_time_remaining}</span>
+                                                    <span>{item.flowrate} ml/h</span>
+                                                </div>
+                                                {item.device_status === 'offline' && (
+                                                    <p className="text-[9px] sm:text-[10px] text-orange-500 font-bold mt-1.5">📶 Data terakhir: {item.last_data_at}</p>
+                                                )}
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -235,6 +279,11 @@ export default function Dashboard({ auth, infusions = [] }) {
                         </div>
                         <div className="p-4 sm:p-8 overflow-y-auto">
                             <form onSubmit={submit} className="space-y-4 sm:space-y-6">
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-500 mb-1.5 sm:mb-2 block uppercase tracking-widest">Masukan ID Perangkat (ESP32)</label>
+                                    <input type="text" value={data.device_id} onChange={e => setData('device_id', e.target.value)} placeholder="Contoh: 01" className={`w-full bg-slate-50 border rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 text-sm font-bold focus:bg-white outline-none ${errors.device_id ? 'border-rose-400 bg-rose-50' : 'border-slate-200'}`} />
+                                    {errors.device_id && <p className="text-rose-500 text-[10px] sm:text-xs font-bold mt-1.5 flex items-center gap-1">⚠ {errors.device_id}</p>}
+                                </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                     <div><label className="text-[10px] font-bold text-slate-500 mb-1.5 sm:mb-2 block uppercase tracking-widest">Nama Pasien</label><input required type="text" value={data.patient_name} onChange={e => setData('patient_name', e.target.value)} className="w-full bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 text-sm font-bold focus:bg-white outline-none" /></div>
                                     <div><label className="text-[10px] font-bold text-slate-500 mb-1.5 sm:mb-2 block uppercase tracking-widest">No Bed</label><input required type="text" value={data.room_number} onChange={e => setData('room_number', e.target.value)} className="w-full bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 text-sm font-bold focus:bg-white outline-none" /></div>
