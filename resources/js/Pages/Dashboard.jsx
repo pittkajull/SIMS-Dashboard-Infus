@@ -1,13 +1,15 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm, Link } from '@inertiajs/react';
 import { useEffect, useState, useRef } from 'react';
-import { Activity, Droplet, AlertCircle, Users, Clock, Plus, X, FileText, HeartPulse, Stethoscope, Bell, RefreshCw, Terminal } from 'lucide-react';
+import { Activity, Droplet, AlertCircle, Users, Clock, Plus, X, FileText, HeartPulse, Stethoscope, Bell, RefreshCw, Terminal, ChevronDown, User, LogOut } from 'lucide-react';
 import InfusionBag from '@/Components/InfusionBag';
 
 export default function Dashboard({ auth, infusions = [] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
     const [activeNotifications, setActiveNotifications] = useState([]);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const profileRef = useRef(null);
     const previousCriticalIdsRef = useRef([]);
     const alarmIntervalsRef = useRef({});
 
@@ -21,6 +23,16 @@ export default function Dashboard({ auth, infusions = [] }) {
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
+    }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (profileRef.current && !profileRef.current.contains(e.target)) {
+                setIsProfileOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     useEffect(() => {
@@ -114,13 +126,49 @@ export default function Dashboard({ auth, infusions = [] }) {
                             </p>
                         </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2">
                         <Link href="/logs" className="bg-white text-slate-600 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-widest shadow-sm hover:bg-slate-50 border border-slate-200 flex items-center gap-2 transition-all active:scale-95">
                             <Terminal size={14} className="sm:w-4 sm:h-4" /> Log
                         </Link>
                         <button onClick={() => setIsModalOpen(true)} className="bg-white text-emerald-600 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-widest shadow-sm hover:bg-emerald-50 border border-slate-200 flex items-center gap-2 transition-all active:scale-95">
                             <Plus size={14} className="sm:w-4 sm:h-4" /> Pasien Baru
                         </button>
+
+                        {/* Profile Dropdown */}
+                        <div className="relative" ref={profileRef}>
+                            <button
+                                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                className="bg-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-xs shadow-sm hover:bg-slate-50 border border-slate-200 flex items-center gap-2.5 transition-all active:scale-95"
+                            >
+                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-[10px] sm:text-xs font-black shadow-sm">
+                                    {auth.user?.name?.charAt(0)?.toUpperCase()}
+                                </div>
+                                <span className="text-slate-700 hidden sm:block max-w-[100px] truncate">{auth.user?.name}</span>
+                                <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isProfileOpen && (
+                                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-lg border border-slate-200 py-2 z-50">
+                                    <div className="px-4 py-3 border-b border-slate-100">
+                                        <p className="text-sm font-bold text-slate-800 truncate">{auth.user?.name}</p>
+                                        <p className="text-[11px] text-slate-500 truncate mt-0.5">{auth.user?.email}</p>
+                                    </div>
+                                    <Link
+                                        href="/profile"
+                                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium"
+                                        onClick={() => setIsProfileOpen(false)}
+                                    >
+                                        <User size={15} className="text-slate-400" /> Edit Profile
+                                    </Link>
+                                    <button
+                                        onClick={() => router.post(route('logout'))}
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium"
+                                    >
+                                        <LogOut size={15} className="text-red-400" /> Logout
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             }
