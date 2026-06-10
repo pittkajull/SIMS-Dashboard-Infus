@@ -138,3 +138,4 @@ Mata Kuliah: Analisis Perancangan Sistem (VTI52421)
 ## 📄 Lisensi
 
 Proyek ini bersifat open-source dan dilisensikan di bawah [MIT License](https://opensource.org/licenses/MIT).
+# ESP32 Integration Branch
