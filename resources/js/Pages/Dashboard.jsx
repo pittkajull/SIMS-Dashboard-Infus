@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm, Link } from '@inertiajs/react';
 import { useEffect, useState, useRef } from 'react';
-import { Activity, Droplet, AlertCircle, Users, Clock, Plus, X, FileText, HeartPulse, Stethoscope, Bell, RefreshCw, Terminal, ChevronDown, User, LogOut } from 'lucide-react';
+import { Activity, Droplet, AlertCircle, Users, Clock, Plus, X, FileText, HeartPulse, Stethoscope, Bell, RefreshCw, Terminal, ChevronDown, User, LogOut, MessageCircle } from 'lucide-react';
 import InfusionBag from '@/Components/InfusionBag';
 
 export default function Dashboard({ auth, infusions = [] }) {
@@ -127,6 +127,9 @@ export default function Dashboard({ auth, infusions = [] }) {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
+                        <Link href="/chat" className="bg-white text-slate-600 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-widest shadow-sm hover:bg-slate-50 border border-slate-200 flex items-center gap-2 transition-all active:scale-95">
+                            <MessageCircle size={14} className="sm:w-4 sm:h-4" /> Chat
+                        </Link>
                         <Link href="/logs" className="bg-white text-slate-600 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-widest shadow-sm hover:bg-slate-50 border border-slate-200 flex items-center gap-2 transition-all active:scale-95">
                             <Terminal size={14} className="sm:w-4 sm:h-4" /> Log
                         </Link>

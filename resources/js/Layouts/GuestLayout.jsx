@@ -1,9 +1,9 @@
 import { Link } from '@inertiajs/react';
 import { Stethoscope } from 'lucide-react';
 
-export default function Guest({ children }) {
+export default function Guest({ children, fullWidth = false }) {
     return (
-        <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center p-6 selection:bg-emerald-500 selection:text-white font-sans text-slate-600 bg-emerald-50/30">
+        <div className={`min-h-screen relative overflow-hidden flex flex-col ${fullWidth ? '' : 'items-center justify-center p-6'} selection:bg-emerald-500 selection:text-white font-sans text-slate-600 bg-emerald-50/30`}>
 
             {/* Background Effects matching Welcome.jsx */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -25,7 +25,7 @@ export default function Guest({ children }) {
                 </svg>
             </div>
 
-            <div className="w-full max-w-[420px] relative z-10">
+            <div className={`w-full ${fullWidth ? '' : 'max-w-[420px]'} relative z-10`}>
                 <div className="text-center mb-10 flex flex-col items-center animate-fadeInDown">
                     <Link
                         href="/"
@@ -42,7 +42,7 @@ export default function Guest({ children }) {
                     </p>
                 </div>
 
-                <div className="bg-white/90 backdrop-blur-2xl p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-200 animate-fadeInUp">
+                <div className={`${fullWidth ? '' : 'bg-white/90 backdrop-blur-2xl p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-200'} animate-fadeInUp`}>
                     {children}
                 </div>
             </div>

@@ -86,6 +86,9 @@ export default function Welcome({ auth }) {
                             </Link>
                         ) : (
                             <>
+                                <Link href="/public/dashboard" className="text-xs font-bold text-slate-600 hover:text-emerald-600 px-4 py-2 transition-colors uppercase tracking-widest hidden sm:block">
+                                    Dashboard Publik
+                                </Link>
                                 <Link href={route('login')} className="text-xs font-bold text-slate-600 hover:text-emerald-600 px-4 py-2 transition-colors uppercase tracking-widest hidden sm:block">
                                     Login Perawat
                                 </Link>
@@ -264,8 +267,8 @@ export default function Welcome({ auth }) {
                             <p className="text-slate-600 text-lg mb-12 max-w-2xl mx-auto font-medium">Tingkatkan efisiensi operasional rumah sakit dan berikan ketenangan pikiran bagi pasien dengan platform pemantauan infus yang inovatif.</p>
                             
                             <div className="flex flex-col sm:flex-row justify-center gap-5">
-                                <Link href={route('register')} className="bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-5 rounded-[20px] text-sm font-black uppercase tracking-widest shadow-[0_10px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_15px_40px_rgba(16,185,129,0.4)] transition-all">
-                                    Daftar Akses
+                                <Link href="/public/dashboard" className="bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-5 rounded-[20px] text-sm font-black uppercase tracking-widest shadow-[0_10px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_15px_40px_rgba(16,185,129,0.4)] transition-all">
+                                    Lihat Dashboard Publik
                                 </Link>
                                 <Link href={route('login')} className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-10 py-5 rounded-[20px] text-sm font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
                                     Masuk Tenaga Medis

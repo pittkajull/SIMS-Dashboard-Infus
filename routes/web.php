@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -14,6 +15,24 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
     ]);
 });
+
+// ==========================================
+// PUBLIC DASHBOARD (Tanpa Login)
+// ==========================================
+Route::get('/public/dashboard', function () {
+    return Inertia::render('PublicDashboard');
+})->name('public.dashboard');
+
+Route::get('/api/public/infusions/{room}', function (string $roomNumber) {
+    $infusions = Infusion::where('room_number', $roomNumber)
+        ->whereNull('finished_at')
+        ->latest('start_time')
+        ->get();
+
+    return response()->json($infusions);
+});
+
+// Public chat & infusion API (moved to routes/api.php to avoid CSRF)
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -191,6 +210,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // ==========================================
+    // CHAT (SUSTER)
+    // ==========================================
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat');
+    Route::post('/chat', [ChatController::class, 'store'])->name('chat.store');
+    Route::post('/chat/read/{room}', [ChatController::class, 'markRead'])->name('chat.read');
 });
 
 require __DIR__.'/auth.php';
