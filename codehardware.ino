@@ -23,7 +23,7 @@ const char* WIFI_SSID     = "Fianz";
 const char* WIFI_PASSWORD = "njirlah123";    
 
 // URL dibuat UNIVERSAL / SENTRAL (Tidak pakai /ID_PASIEN di ujungnya)
-const char* BACKEND_URL   = "http://192.168.137.119:8000/api/update-infusion";
+const char* BACKEND_URL   = "http://192.168.137.119:8000/16.78.44.118/update-infusion";
 
 // ID Perangkat dibuat STATIS (Cukup ganti "01", "02", "03" saat flash alat berbeda)
 const char* DEVICE_ID     = "01"; 

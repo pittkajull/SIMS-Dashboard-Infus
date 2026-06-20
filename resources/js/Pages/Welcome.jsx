@@ -250,6 +250,32 @@ export default function Welcome({ auth }) {
                     </div>
                 </section>
 
+                {/* Video Demo Section */}
+                <section className="py-32 px-6">
+                    <RevealOnScroll delay={200}>
+                        <div className="max-w-[1200px] mx-auto">
+                            <div className="text-center mb-16">
+                                <div className="inline-flex px-4 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest mb-6">VIDEO DEMO</div>
+                                <h2 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight mb-6">Lihat SIMS dalam Aksi</h2>
+                                <p className="text-slate-600 text-lg font-medium max-w-2xl mx-auto leading-relaxed">Tonton bagaimana Smart Infusion Monitoring System bekerja secara nyata untuk meningkatkan keselamatan pasien.</p>
+                            </div>
+                            <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.12)] border border-slate-200 bg-white p-3">
+                                <div className="relative rounded-[2rem] overflow-hidden" style={{ paddingBottom: '56.25%' }}>
+                                    <iframe
+                                        className="absolute inset-0 w-full h-full"
+                                        src="https://www.youtube.com/embed/56opYbHeSao"
+                                        title="SIMS - Smart Infusion Monitoring System Demo"
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerPolicy="strict-origin-when-cross-origin"
+                                        allowFullScreen
+                                    ></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </RevealOnScroll>
+                </section>
+
                 {/* CTA Full Width Section */}
                 <section className="py-32 px-6 overflow-hidden">
                     <RevealOnScroll delay={200}>
